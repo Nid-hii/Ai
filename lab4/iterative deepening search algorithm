@@ -1,0 +1,71 @@
+class Node:
+    def __init__(self, state, parent=None):
+        self.state = state
+        self.parent = parent
+
+    def is_goal(self, goal):
+        return self.state == goal
+
+    def get_neighbors(self, graph):
+        return graph.get(self.state, [])
+
+def depth_limited_search(node, goal, depth, graph):
+    if node.is_goal(goal):
+        return node
+    if depth == 0:
+        return None
+
+    for neighbor in node.get_neighbors(graph):
+        neighbor_node = Node(neighbor, node)
+        result = depth_limited_search(neighbor_node, goal, depth - 1, graph)
+        if result is not None:
+            return result
+
+    return None
+
+def iterative_deepening_search(start_state, goal_state, graph):
+    start_node = Node(start_state)
+    depth = 0
+
+    while True:
+        result = depth_limited_search(start_node, goal_state, depth, graph)
+        if result is not None:
+            return result  # Goal found
+        depth += 1  # Increase depth for the next iteration
+
+def get_graph_from_input():
+    graph = {}
+    print("Enter the graph as an adjacency list:")
+    print("For example, 'A B C' means node A is connected to B and C.")
+    print("Type 'done' when you are finished entering nodes.")
+
+    while True:
+        line = input("Node and its neighbors: ")
+        if line.lower() == 'done':
+            break
+        parts = line.split()
+        node = parts[0]
+        neighbors = parts[1:] if len(parts) > 1 else []
+        graph[node] = neighbors
+
+    return graph
+
+# Example usage
+graph = get_graph_from_input()
+
+start_state = input("Enter the start node: ")
+goal_state = input("Enter the goal node: ")
+
+solution = iterative_deepening_search(start_state, goal_state, graph)
+
+if solution:
+    print("Solution found!")
+    # To reconstruct the path:
+    path = []
+    while solution:
+        path.append(solution.state)
+        solution = solution.parent
+    path.reverse()
+    print("Path to solution:", path)
+else:
+    print("No solution found.")
