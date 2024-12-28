@@ -1,0 +1,44 @@
+class State:
+    def __init__(self, queens, g):
+        self.queens = queens  # List of queen positions
+        self.g = g  # Number of queens placed
+        self.h = self.heuristic()  # Heuristic value
+        self.f = self.g + self.h  # Total cost
+
+    def heuristic(self):
+        # Calculate number of attacking pairs
+        attacks = 0
+        for i in range(len(self.queens)):
+            for j in range(i + 1, len(self.queens)):
+                if self.queens[i] == self.queens[j] or abs(self.queens[i] - self.queens[j]) == abs(i - j):
+                    attacks += 1
+        return attacks
+
+def a_star_8_queens():
+    open_list = []
+    closed_list = set()
+
+    initial_state = State([], 0)
+    open_list.append(initial_state)
+
+    while open_list:
+        open_list.sort(key=lambda state: state.f)
+        current_state = open_list.pop(0)
+
+        if current_state.g == 8:
+            return current_state.queens  # Found a solution
+
+        for col in range(8):
+            new_queens = current_state.queens + [col]
+            new_state = State(new_queens, current_state.g + 1)
+
+            if new_state.heuristic() == 0:  # No attacks
+                if tuple(new_queens) not in closed_list:
+                    open_list.append(new_state)
+
+        closed_list.add(tuple(current_state.queens))
+
+    return None  # No solution found
+
+solution = a_star_8_queens()
+print(solution)
